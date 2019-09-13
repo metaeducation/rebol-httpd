@@ -88,7 +88,7 @@ matrix:
     # additional motivation to include it in the matrix.
     #
     - os: osx
-      osx_image: xcode8.3  # try an older XCode (on OS X 10.12)
+      osx_image: xcode11  # try a newer OS X to avoid homebrew update (10.14)
       language: cpp
       env:
         - NUMBER=2
@@ -118,7 +118,23 @@ matrix:
 #
 install:
   - |
-    if [[ $BREW = yes ]]; then  # See notes in Ren-C .travis.yml RE: OS X
+    #
+    # The Travis OS X images have brew preinstalled, but get old and out of
+    # sync with the package database.  This means brew has to update.  It's
+    # supposed to do this automatically, but circa 2017 it broke in some
+    # images due to the lack of a sufficiently up-to-date Ruby:
+    #
+    # https://github.com/travis-ci/travis-ci/issues/8552
+    #
+    # But even if brew can update automatically, it generates an unsightly
+    # amount of output if it does so during a `brew install`.  So redirect
+    # the hundreds of lines to /dev/null to shorten the Travis log.
+    #
+    # https://github.com/Homebrew/legacy-homebrew/issues/35662
+    #
+    if [[ $BREW = yes ]]; then  # seems to not work on old OS X
+      brew update > /dev/null
+
       brew install unixodbc  # for ODBC extension
       brew install zmq  # for ZeroMQ extension
     fi
