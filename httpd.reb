@@ -1,7 +1,7 @@
 Rebol [
     Title: "Web Server Scheme for Ren-C"
     Author: "Christopher Ross-Gill"
-    Date: 14-Dec-2018
+    Date: 13-Sep-2019
     File: %httpd.reb
     Home: https://github.com/rgchris/Scripts
     Version: 0.3.5
@@ -21,7 +21,7 @@ Rebol [
     ]
     Usage: {
         For a simple server that just returns HTTP envelope with "Hello":
- 
+
             wait srv: open [scheme: 'httpd 8000 [render "Hello"]]
 
         Then point a browser at http://127.0.0.1:8000
@@ -55,7 +55,10 @@ sys/make-scheme [
 
     spec: make system/standard/port-spec-head [port-id: actions: _]
 
-    wake-client: function [event [event!]] [
+    wake-client: function [
+        return: [port!]
+        event [event!]
+    ][
         client: event/port
 
         switch event/type [
@@ -77,8 +80,6 @@ sys/make-scheme [
 
                     default [read client]
                 ]
-
-                client
             ]
 
             'wrote [
@@ -99,7 +100,7 @@ sys/make-scheme [
                         close client
                     ]
 
-                    default [client]
+                    default []
                 ]
             ]
 
@@ -111,9 +112,10 @@ sys/make-scheme [
                 net-utils/net-log [
                     "Unexpected Client Event:" uppercase form event/type
                 ]
-                client
             ]
         ]
+
+        return client
     ]
 
     init: function [server [port!]] [
@@ -129,7 +131,7 @@ sys/make-scheme [
                 spec/port-id: spec/ref/3
                 spec/actions: spec/ref/4
             ]
-            default [fail "Server lacking core features."]
+            fail "Server lacking core features."
         ]
 
         server/locals: make object! [
@@ -204,8 +206,9 @@ sys/make-scheme [
                     server/locals/open?
                 ]
 
-                default [
-                    fail ["HTTPd port does not reflect this property:" uppercase mold property]
+                fail [
+                    "HTTPd port does not reflect this property:"
+                        uppercase mold property
                 ]
             ]
         ]
@@ -237,8 +240,7 @@ sys/make-scheme [
         timeout: _
         type: 'application/x-www-form-urlencoded
         server-software: unspaced [
-;          system/script/header/title " v" system/script/header/version " "
-            "Rebol/" system/product " v" system/version
+            "Rebol/" system/product space "v" system/version
         ]
         server-name: _
         gateway-interface: _
@@ -247,7 +249,7 @@ sys/make-scheme [
         request-method: _
         request-uri: _
         path-info: _
-        path-translated:
+        path-translated: _
         script-name: _
         query-string: _
         remote-host: _
@@ -289,7 +291,8 @@ sys/make-scheme [
         ]
     ]
 
-    transcribe: function [ 
+    transcribe: function [
+        return: <void>
         client [port!]
 
       <static>
@@ -303,7 +306,7 @@ sys/make-scheme [
 
         request-query (use [chars] [
             chars: complement charset [#"^@" - #" "]
-            [any chars] ;; I need empty request .../? [@giuliolunati]
+            [any chars]  ; ANY instead of SOME (empty requests are legal)
         ])
 
         header-feed ([newline | cr lf])
@@ -364,17 +367,8 @@ sys/make-scheme [
                     content: does [content: as-text binary]
                 )
             ] else [
-                comment [ ;-- !!! was commented out, why?
-                    action: _
-                    target: _
-                    request-method: _
-                    query-string: _
-                    binary: _
-                    content: _
-                    request-uri: _
-                ]
                 net-utils/net-log error: "Could Not Parse Request"
-                return _
+                return
             ]
 
             version: to text! :version
@@ -400,6 +394,7 @@ sys/make-scheme [
     ]
 
     dispatch: function [
+        return: <void>
         client [port!]
 
       <static>
@@ -408,12 +403,12 @@ sys/make-scheme [
             200 "OK"
             201 "Created"
             204 "No Content"
-            
+
             301 "Moved Permanently"
             302 "Moved temporarily"
             303 "See Other"
             307 "Temporary Redirect"
-            
+
             400 "Bad Request"
             401 "No Authorization"
             403 "Forbidden"
@@ -458,7 +453,7 @@ sys/make-scheme [
 
         if object? client/locals/request [
             client/locals/parent/locals/handler client/locals/request response
-        ] else [ ;; don't crash on bad request
+        ] else [  ; don't crash on bad request
             response/status: 500
             response/type: "text/html"
             response/content: "Bad request."
@@ -473,14 +468,14 @@ sys/make-scheme [
         ] [
             ?? error
             net-utils/net-log [
-                "Response headers not sent to client:"
-                    "reason: " error/message
+                "Response headers not sent to client.  Reason:"
+                    space error/message
             ]
             if not find [
                 "Connection reset by peer"
                 "Broken pipe"
             ] error/message [
-                fail :error
+                fail error
             ]
         ]
 
@@ -504,11 +499,11 @@ sys/make-scheme [
             ][
                 ?? error
                 net-utils/net-log [
-                    "Part or whole of response not sent to client:"
-                        "reason: " error/message
+                    "Part or whole of response not sent to client.  Reason:"
+                        space error/message
                 ]
-                ;; only mask some errors:
-                if find [
+
+                if find [  ; Only mask some errors
                     "Connection reset by peer"
                     "Broken pipe"
                 ] error/message [
@@ -520,7 +515,7 @@ sys/make-scheme [
                 ]
             ]
 
-            default [:outcome] ; is port
+            default [:outcome]  ; is port
         ]
     ]
 ]
