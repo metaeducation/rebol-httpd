@@ -13,11 +13,14 @@ process-id: call* probe compose [
         "] then (func [e] [print mold e])"
     ])
 ]
-print ["Server Process ID:" process-id]
 
-; We try and give the server enough time to spin up
+quit: adapt 'lib/quit [
+    call compose [{kill} {-9} (to text! process-id)]
+]
+
 ; !!! What would the "legit" way to do this be?
 ;
+print "Waiting for 3 seconds to ensure server starts up..."
 wait 3
 
 trap [
@@ -34,4 +37,4 @@ if actual !== expected [
     quit 1
 ]
 
-quit 0  ; the default, but emphasizes return code is heeded by Travis 
+quit 0  ; return code is heeded by Travis 

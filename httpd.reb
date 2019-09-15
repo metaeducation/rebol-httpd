@@ -83,25 +83,7 @@ sys/make-scheme [
             ]
 
             'wrote [
-                case [
-                    send-chunk client [
-                        client
-                    ]
-
-                    client/locals/response/kill? [
-                        close client
-                        wake-up client/locals/parent make event! [
-                            type: 'close
-                            port: client/locals/parent
-                        ]
-                    ]
-
-                    client/locals/response/close? [
-                        close client
-                    ]
-
-                    default []
-                ]
+                ; !!! WROTE event used to be used for manual chunking
             ]
 
             'close [
@@ -161,7 +143,6 @@ sys/make-scheme [
             instance: 0
             request: _
             response: _
-            wire: make binary! 4096
             parent: :server
         ]
 
@@ -465,9 +446,12 @@ sys/make-scheme [
             response/content: gzip response/content
         ]
 
+        ; Note: TRAP here of async write is ineffective
+        ; https://github.com/metaeducation/rebol-httpd/issues/4
+        ;
         if error? error: trap [
             write client hdr: build-header response
-        ] [
+        ][
             ?? error
             net-utils/net-log [
                 "Response headers not sent to client.  Reason:"
@@ -481,43 +465,27 @@ sys/make-scheme [
             ]
         ]
 
-        insert client/locals/wire response/content
-    ]
-
-    send-chunk: function [
-        port [port!]
-    ][
+        ; Note: TRAP here of async write is ineffective
+        ; https://github.com/metaeducation/rebol-httpd/issues/4
         ;
-        ; !!! Trying to send data > 32'000 bytes at once would trigger R3's
-        ; internal chunking (which was buggy, see above).  Chunks > 32'000
-        ; bytes were thus manually chunked for some time, but it should be
-        ; increased to see if that bug still exists.
-        ;
-        case [
-            empty? port/locals/wire [_]
-
-            error? error: trap [
-                outcome: write port take/part port/locals/wire 32'000 ; 2'000'000
-            ][
-                ?? error
-                net-utils/net-log [
-                    "Part or whole of response not sent to client.  Reason:"
-                        space error/message
-                ]
-
-                if find [  ; Only mask some errors
-                    "Connection reset by peer"
-                    "Broken pipe"
-                ] error/message [
-                    clear port/locals/wire
-                    _
-                ]
-                else [
-                    fail :error
-                ]
+        if error? error: trap [
+            write client response/content
+        ][
+            net-utils/net-log [
+                "Part or whole of response not sent to client.  Reason:"
+                    space error/message
             ]
 
-            default [:outcome]  ; is port
+            if find [  ; Only mask some errors
+                "Connection reset by peer"
+                "Broken pipe"
+            ] error/message [
+                clear port/locals/wire
+                _
+            ]
+            else [
+                fail :error
+            ]
         ]
     ]
 ]

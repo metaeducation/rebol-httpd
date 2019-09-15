@@ -177,9 +177,11 @@ script:
 
 # TEST STEPS
 #
+# The tests are designed to call QUIT and return 1 status on failure, with
+# 0 returned on success.
 
-  - |
-    ./r3 tests/simple.reb  # returns 1 status on failure, 0 on success
+  - ./r3 tests/simple.reb
 
+  - ./r3 tests/stress.reb
 
 # vim: set et sw=2:
