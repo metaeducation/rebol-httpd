@@ -434,7 +434,9 @@ sys/make-scheme [
                 keep ["HTTP/1.1" response/status
                     select status-codes response/status]
                 keep [cr lf "Content-Type:" response/type]
-                keep [cr lf "Content-Length:" length-of response/content]
+                keep [cr lf "Content-Length:"
+                    length of as binary! response/content  ; bytes (not chars)
+                ]
                 if response/compress? [
                     keep [cr lf "Content-Encoding:" "gzip"]
                 ]
