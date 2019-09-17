@@ -159,14 +159,42 @@ sys/make-scheme [
             ]
         ]
 
-        server/awake: function [event [event!]] [
-            switch event/type [
+        server/awake: function [e [event!]] [
+            switch e/type [
                 'close [
-                    close event/port
+                    close e/port
                     true
                 ]
 
-                default [event/port]
+                ; Since WRITE is asynchronous we can't catch errors via TRAP
+                ; https://github.com/metaeducation/rebol-httpd/issues/4
+                ;
+                'error [
+                    print ["Now we're in the SERVER/AWAKE with an error"]
+                    -- err: ensure error! e/port/error
+
+                    ; !!! No way to tell at the moment whether it was the
+                    ; async WRITE of the header or the async WRITE of the
+                    ; content that failed.  Better identity mechanism would
+                    ; be needed for that.
+                    ;
+                    net-utils/net-log [
+                        "Response header/content not sent to client."
+                            "Reason:" err/message
+                    ]
+
+                    if not find [  ; !!! Should use ID codes, not strings!
+                        "Connection reset by peer"
+                        "Broken pipe"
+                    ] err/message [
+                        e/port/error: _
+                        return true  ; Suppress these to keep server running
+                    ]
+
+                    return false  ; let default AWAKE handler do the FAIL
+                ]
+
+                default [false]
             ]
         ]
 
@@ -446,46 +474,10 @@ sys/make-scheme [
             response/content: gzip response/content
         ]
 
-        ; Note: TRAP here of async write is ineffective
+        ; Since WRITE is asynchronous we can't catch errors via TRAP
         ; https://github.com/metaeducation/rebol-httpd/issues/4
         ;
-        if error? error: trap [
-            write client hdr: build-header response
-        ][
-            ?? error
-            net-utils/net-log [
-                "Response headers not sent to client.  Reason:"
-                    space error/message
-            ]
-            if not find [
-                "Connection reset by peer"
-                "Broken pipe"
-            ] error/message [
-                fail error
-            ]
-        ]
-
-        ; Note: TRAP here of async write is ineffective
-        ; https://github.com/metaeducation/rebol-httpd/issues/4
-        ;
-        if error? error: trap [
-            write client response/content
-        ][
-            net-utils/net-log [
-                "Part or whole of response not sent to client.  Reason:"
-                    space error/message
-            ]
-
-            if find [  ; Only mask some errors
-                "Connection reset by peer"
-                "Broken pipe"
-            ] error/message [
-                clear port/locals/wire
-                _
-            ]
-            else [
-                fail :error
-            ]
-        ]
+        write client hdr: build-header response  ; !!! is HDR var necessary?
+        write client response/content
     ]
 ]

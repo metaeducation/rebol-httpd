@@ -180,8 +180,23 @@ script:
 # The tests are designed to call QUIT and return 1 status on failure, with
 # 0 returned on success.
 
+  # "Simple" httpd example of serving a single UTF-8 string with high codepoint
+  # The later tests are a superset of this one.  But if this doesn't work, it's
+  # probably the easiest one to debug.
+  #
   - ./r3 tests/simple.reb
 
+  # Stress test that sets up a client and server to transmit ever-increasing
+  # amounts of data, and check that the transmission worked.
+  #
   - ./r3 tests/stress.reb
+
+  # Variation of the stress test where the client picks a random moment in the
+  # transmission to disconnect.  It does the disconnection for about half of
+  # its reads, and tries to make sure the server remains robust and sends data
+  # correctly for the other half.  Uses the git commit of the interpreter as a
+  # random seed for reproducibility, while still varying the hangup moments.
+  #
+  - ./r3 tests/stress.reb -- hangup
 
 # vim: set et sw=2:
