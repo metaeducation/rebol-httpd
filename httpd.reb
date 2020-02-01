@@ -78,7 +78,7 @@ sys/make-scheme [
                         dispatch client
                     ]
 
-                    default [read client]
+                    default [if not empty? client/data [read client]]
                 ]
             ]
 
@@ -456,6 +456,7 @@ sys/make-scheme [
                     keep [cr lf "Connection:" "close"]
                 ]
                 keep [cr lf "Cache-Control:" "no-cache"]
+                keep [cr lf "Access-Control-Allow-Origin: *"]
                 keep [cr lf cr lf]
             ]
         ])
