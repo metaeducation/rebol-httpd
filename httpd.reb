@@ -78,7 +78,7 @@ sys/make-scheme [
                         dispatch client
                     ]
 
-                    default [read client]
+                    default [if not empty? client/data [read client]]
                 ]
             ]
 
