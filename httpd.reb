@@ -391,10 +391,11 @@ sys/make-scheme [
             headers: make header-prototype
                 http-headers: new-line/skip headers true 2
 
-            type: try all [
+            type: all [
                 text? type: headers/Content-Type
-                copy/part type (opt find type ";")
-            ]
+                append type ";"
+                copy/part type find type ";"
+            ] else ["text/html"]
 
             length: content-length: attempt [to integer! length] else [0]
 
