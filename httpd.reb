@@ -393,8 +393,7 @@ sys/make-scheme [
 
             type: all [
                 text? type: headers/Content-Type
-                append type ";"
-                copy/part type find type ";"
+                copy/part type find type ";"   ; FIND revokes /PART when null
             ] else ["text/html"]
 
             length: content-length: attempt [to integer! length] else [0]
