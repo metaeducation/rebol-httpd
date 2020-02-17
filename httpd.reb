@@ -78,7 +78,10 @@ sys/make-scheme [
                         dispatch client
                     ]
 
-                    default [if not empty? client/data [read client]]
+                    default [
+                        if not empty? client/data [
+                        if trap [read client][close client]
+                    ]]
                 ]
             ]
 
