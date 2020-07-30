@@ -29,7 +29,7 @@ trap [
     print ["READ had an error:" mold e]
     quit 1
 ])
-    
+
 print ["Server responded with:" mold actual]
 
 if actual !== expected [
