@@ -77,8 +77,8 @@ sys/make-scheme [
                         transcribe client
                         dispatch client
                     ]
-
-                    default [read client]
+                ] else [
+                    read client
                 ]
             ]
 
@@ -90,11 +90,9 @@ sys/make-scheme [
                 close client
             ]
 
-            default [
-                net-utils/net-log [
-                    "Unexpected Client Event:" uppercase form event/type
-                ]
-            ]
+            (elide net-utils/net-log [
+                "Unexpected Client Event:" uppercase form event/type
+            ])
         ]
 
         return client
@@ -154,9 +152,7 @@ sys/make-scheme [
                     read client
                     event
                 ]
-
-                default [false]
-            ]
+            ] else [false]
         ]
 
         server/awake: function [e [event!]] [
@@ -193,9 +189,7 @@ sys/make-scheme [
 
                     return false  ; let default AWAKE handler do the FAIL
                 ]
-
-                default [false]
-            ]
+            ] else [false]
         ]
 
         server

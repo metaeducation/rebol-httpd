@@ -44,4 +44,4 @@ would have to be done by a "sufficiently motivated individual".)
 https://www.apache.org/licenses/LICENSE-2.0
 
 * Copyright (c) 2017 Christopher Ross-Gill
-* Copyright (c) 2017-2019 Rebol Open Source Contributors
+* Copyright (c) 2017-2020 Rebol Open Source Contributors
