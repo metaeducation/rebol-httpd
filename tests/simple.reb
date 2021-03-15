@@ -14,7 +14,7 @@ process-id: call* probe compose [
     ])
 ]
 
-quit: adapt 'lib/quit [
+quit: adapt :lib/quit [
     call compose [{kill} {-9} (to text! process-id)]
 ]
 
