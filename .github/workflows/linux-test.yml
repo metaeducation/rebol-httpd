@@ -16,6 +16,20 @@ jobs:
     name: A job to say hello
     steps:
 
+
+  #====# CHECKOUT STEPS #=====================================================#
+
+    # https://github.com/actions/checkout
+    #
+    # See README: Checkout Action
+    #
+    - uses: actions/checkout@v2  # See README: Trusted Actions
+
+
+
+  #====# INSTALL R3 INTERPRETER #=============================================#
+
+
     - name: Download and Cache the Interpreter
       id: hello 
       uses: metaeducation/ren-c-action@release
