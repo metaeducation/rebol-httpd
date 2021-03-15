@@ -1,0 +1,39 @@
+on:
+  push:
+    branches: [
+      master
+    ]
+  pull_request:
+    branches: [
+      master
+    ]
+  workflow_dispatch:  # Allows running this workflow manually from Actions tab
+
+
+jobs:
+  hello_world_job:
+    runs-on: ubuntu-latest
+    name: A job to say hello
+    steps:
+
+    - name: Hello world action step
+      id: hello
+      uses: metaeducation/ren-c-action@release
+      with:
+        script: |
+          print {Running Script Via Action}
+
+    - name: Output Where R3 Was Installed
+      run: |
+        echo "The time was ${{ steps.hello.outputs.path }}"
+
+    - name: Demonstrate R3 is Now On Executable Path
+      run: |
+        r3 --do "print {Hello Path World}"
+
+    - name: Cached Usage Test
+      uses: metaeducation/ren-c-action@release
+      with:
+        script: |
+          print {This shouldn't need to download again}
+
