@@ -16,24 +16,22 @@ jobs:
     name: A job to say hello
     steps:
 
-    - name: Hello world action step
-      id: hello
+    - name: Download and Cache the Interpreter
+      id: hello 
       uses: metaeducation/ren-c-action@release
-      with:
-        script: |
-          print {Running Script Via Action}
 
     - name: Output Where R3 Was Installed
       run: |
-        echo "The time was ${{ steps.hello.outputs.path }}"
+        echo "The path was ${{ steps.hello.outputs.path }}"
 
     - name: Demonstrate R3 is Now On Executable Path
       run: |
         r3 --do "print {Hello Path World}"
 
-    - name: Cached Usage Test
+    - name: Cached Usage Test (shouldn't download again)
       uses: metaeducation/ren-c-action@release
       with:
         script: |
-          print {This shouldn't need to download again}
+          print {This time, we run a script!}
+          print {You can write multiple lines here...}
 
