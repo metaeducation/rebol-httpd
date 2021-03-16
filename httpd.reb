@@ -275,18 +275,18 @@ sys/make-scheme [
         close?: true
         compress?: false
 
-        render: method [response [text! binary!]] [
+        render: meth [response [text! binary!]] [
             status: 200
             content: response
         ]
 
-        print: method [response [text!]] [
+        print: meth [response [text!]] [
             status: 200
             content: response
             type: "text/plain"
         ]
 
-        redirect: method [target [url! file!] /code [integer!]] [
+        redirect: meth [target [url! file!] /code [integer!]] [
             status: code: default [303]
             content: "Redirecting..."
             type: "text/plain"
