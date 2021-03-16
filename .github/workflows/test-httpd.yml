@@ -1,3 +1,5 @@
+name: Stress Test HTTPD
+
 on:
   push:
     branches: [
@@ -11,9 +13,22 @@ on:
 
 
 jobs:
-  hello_world_job:
-    runs-on: ubuntu-latest
-    name: A job to say hello
+  test-httpd:
+
+
+    strategy:
+      matrix:
+        include:  # put in order of visibility importance (shown in UI)
+        - os: macos-latest
+        - os: windows-latest
+        - os: ubuntu-latest
+
+
+    # https://github.com/actions/virtual-environments#available-environments
+    #
+    runs-on: ${{ matrix.os }}
+
+
     steps:
 
 
@@ -31,23 +46,7 @@ jobs:
 
 
     - name: Download and Cache the Interpreter
-      id: hello 
       uses: metaeducation/ren-c-action@release
-
-    - name: Output Where R3 Was Installed
-      run: |
-        echo "The path was ${{ steps.hello.outputs.path }}"
-
-    - name: Demonstrate R3 is Now On Executable Path
-      run: |
-        r3 --do "print {Hello Path World}"
-
-    - name: Cached Usage Test (shouldn't download again)
-      uses: metaeducation/ren-c-action@release
-      with:
-        script: |
-          print {This time, we run a script!}
-          print {You can write multiple lines here...}
 
 
   #====# TEST STEPS #==========================================================#
