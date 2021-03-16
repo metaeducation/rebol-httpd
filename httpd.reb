@@ -342,10 +342,10 @@ sys/make-scheme [
     ][
         client/locals/request: make request-prototype [
             parse raw: client/data [
-                copy method request-action space
-                copy request-uri [
-                    copy target request-path opt [
-                        "?" copy query-string request-query
+                method: across request-action, space
+                request-uri: across [
+                    target: across request-path, opt [
+                        "?", query-string: across request-query
                     ]
                 ]
                 spaces-or-tabs
@@ -353,8 +353,8 @@ sys/make-scheme [
                 header-feed
                 (headers: make block! 10)
                 some [
-                    copy name header-name ":" any " "
-                    copy value header-part header-feed
+                    name: across header-name, ":", any " "
+                    value: across header-part, header-feed
                     (
                         name: as-text name
                         value: as-text value
@@ -365,7 +365,7 @@ sys/make-scheme [
                         ]
                     )
                 ]
-                header-feed content: to end (
+                header-feed, content: here, to end (
                     binary: copy :content
                     content: does [content: as-text binary]
                 )
