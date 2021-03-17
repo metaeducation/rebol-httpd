@@ -51,8 +51,10 @@ process-id: call* probe compose [
     ])
 ]
 
+use [quit] [
+
 quit: adapt :lib/quit [
-    call compose [{kill} {-9} (to text! process-id)]
+    terminate process-id
 ]
 
 ; !!! What would the "legit" way to do this be?
@@ -162,4 +164,6 @@ cycle [
     if total > 20000000 [stop]  ; big enough?
 ]
 
-quit 0  ; Note: Return code is heeded by Travis!
+quit 0  ; Note: Return code is heeded by test caller!
+
+]  ; end local definition of QUIT that shuts down server

@@ -14,8 +14,10 @@ process-id: call* probe compose [
     ])
 ]
 
+use [quit] [
+
 quit: adapt :lib/quit [
-    call compose [{kill} {-9} (to text! process-id)]
+    terminate process-id
 ]
 
 ; !!! What would the "legit" way to do this be?
@@ -37,4 +39,6 @@ if actual !== expected [
     quit 1
 ]
 
-quit 0  ; return code is heeded by Travis 
+quit 0  ; return code is heeded by test caller
+
+]  ; end use of local quit definition
