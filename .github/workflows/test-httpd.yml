@@ -16,12 +16,34 @@ jobs:
   test-httpd:
 
 
+    # Since the HTTPD test exercises a fair bit of code, but is short and quick
+    # enough to not be too much of a burden on the world, we go ahead and do
+    # run it for the release and debug builds on the main desktop platforms.
+    #
+    # (Rather than use the automatic-matrix'ing, we go ahead and list them
+    # manually, because that makes it easier to tweak specifics if desired.)
+    #
     strategy:
       matrix:
         include:  # put in order of visibility importance (shown in UI)
-        #- os: macos-latest
+
+        - os: macos-latest
+          checked: false
+
         - os: windows-latest
+          checked: false
+
         - os: ubuntu-latest
+          checked: false
+
+        - os: macos-latest
+          checked: true
+
+        - os: windows-latest
+          checked: true
+
+        - os: ubuntu-latest
+          checked: true
 
 
     # https://github.com/actions/virtual-environments#available-environments
@@ -65,6 +87,8 @@ jobs:
 
     - name: Download and Cache the Interpreter
       uses: metaeducation/ren-c-action@release
+      with:
+        checked: ${{ matrix.checked }}
 
 
   #====# TEST STEPS #==========================================================#
