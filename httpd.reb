@@ -122,7 +122,7 @@ sys/make-scheme [
         ]
 
         server/locals/handler: function [
-            return: <void>
+            return: <none>
             request [object!]
             response [object!]
         ] compose [
@@ -295,7 +295,7 @@ sys/make-scheme [
     ]
 
     transcribe: function [
-        return: <void>
+        return: <none>
         client [port!]
 
       <static>
@@ -309,14 +309,14 @@ sys/make-scheme [
 
         request-query (use [chars] [
             chars: complement charset [#"^@" - #" "]
-            [any chars]  ; ANY instead of SOME (empty requests are legal)
+            [while chars]  ; WHILE instead of SOME (empty requests are legal)
         ])
 
         header-feed ([newline | cr lf])
 
         header-part (use [chars] [
             chars: complement charset [#"^(00)" - #"^(1F)"]
-            [some chars any [header-feed some " " some chars]]
+            [some chars while [header-feed some " " some chars]]
         ])
 
         header-name (use [chars] [
@@ -353,7 +353,7 @@ sys/make-scheme [
                 header-feed
                 (headers: make block! 10)
                 some [
-                    name: across header-name, ":", any " "
+                    name: across header-name, ":", while " "
                     value: across header-part, header-feed
                     (
                         name: as-text name
@@ -397,7 +397,7 @@ sys/make-scheme [
     ]
 
     dispatch: function [
-        return: <void>
+        return: <none>
         client [port!]
 
       <static>
