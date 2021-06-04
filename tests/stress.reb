@@ -13,17 +13,17 @@ REBOL [
 
 import %../httpd.reb
 
-if hangup?: did find system/options/args "hangup" [
+if hangup?: did find system.options.args "hangup" [
     ;
     ; To get some variance in when a hangup occurs (early or late in a transfer)
     ; we randomize it.  We seed using the git commit, so that each new build will
     ; test new hangup points, while still being reproducible.
     ;
-    either system/commit [
+    either system.commit [
         print ["Seeding Hangup Randomization with Git Commit:" system/commit]
-        random/seed system/commit 
+        random/seed system.commit 
     ][
-        print "No system/commit--not seeding hangup randomization"
+        print "No system.commit--not seeding hangup randomization"
     ]
 ]
 
@@ -36,7 +36,7 @@ n: 0
 ; CALL* does not wait for completion, so the server runs in the background
 ;
 process-id: call* probe compose [
-    (system/options/boot) "--do" (spaced [
+    (system.options.boot) "--do" (spaced [
         "import %../httpd.reb"
         "trap ["
             "str:" mold str "n:" n
@@ -98,12 +98,12 @@ cycle [
         if partial != total [
             port: open tcp://127.0.0.1:8000  ; raw TCP so we can hangup
 
-            port/awake: function [e [event!]] [
-                if e/type = 'read [
-                    if partial != length of e/port/data [
+            port.awake: function [e [event!]] [
+                if e.type = 'read [
+                    if partial != length of e.port.data [
                         print [
                            "READ with /PART of" partial "read wrong byte count:"
-                           (length of e/port/data)
+                           (length of e.port.data)
                         ]
                         quit 1
                     ]

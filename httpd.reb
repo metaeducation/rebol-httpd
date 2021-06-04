@@ -30,11 +30,11 @@ Rebol [
 
 net-utils: reduce [
     comment [
-        'net-log proc [message [block! text!]] [
-            print either block? message [spaced message] [message]
+        'net-log proc [return: <void> message [block! text!]] [
+            print message
         ]
     ]
-    'net-log _
+    'net-log :elide
 ]
 
 as-text: function [
@@ -49,7 +49,7 @@ as-text: function [
     to text! binary
 ]
 
-sys/make-scheme [
+sys.make-scheme [
     title: "HTTP Server"
     name: 'httpd
 
@@ -59,11 +59,11 @@ sys/make-scheme [
         return: [port!]
         event [event!]
     ][
-        client: event/port
+        client: event.port
 
-        switch event/type [
+        switch event.type [
             'read [
-                net-utils/net-log unspaced [
+                net-utils.net-log unspaced [
                     "Instance [" client.locals.instance: me + 1 "]"
                 ]
 
@@ -73,7 +73,7 @@ sys/make-scheme [
                         client.locals.parent
                     ]
 
-                    find client/data #{0D0A0D0A} [
+                    find client.data #{0D0A0D0A} [
                         transcribe client
                         dispatch client
                     ]
@@ -90,7 +90,7 @@ sys/make-scheme [
                 close client
             ]
 
-            (elide net-utils.net-log [
+            (net-utils.net-log [
                 "Unexpected Client Event:" uppercase form event.type
             ])
         ]
@@ -115,9 +115,9 @@ sys/make-scheme [
         ]
 
         server.locals: make object! [
-            handler: _
-            subport: _
-            open?: _
+            handler: '
+            subport: '
+            open?: '
             clients: make block! 1024
         ]
 
@@ -139,8 +139,8 @@ sys/make-scheme [
 
         server.locals.subport.locals: make object! [
             instance: 0
-            request: _
-            response: _
+            request: '
+            response: '
             parent: :server
         ]
 
@@ -155,7 +155,7 @@ sys/make-scheme [
             ] else [false]
         ]
 
-        server/awake: function [e [event!]] [
+        server.awake: function [e [event!]] [
             switch e.type [
                 'close [
                     close e.port
@@ -183,7 +183,7 @@ sys/make-scheme [
                         "Connection reset by peer"
                         "Broken pipe"
                     ] err.message [
-                        e.port.error: _
+                        e.port.error: null
                         return true  ; Suppress these to keep server running
                     ]
 
@@ -217,7 +217,7 @@ sys/make-scheme [
         ]
 
         close: func [server [port!]] [
-            server.awake: server.locals.subport.awake: _
+            server.awake: server.locals.subport.awake: null
             server.locals.open?: no
             close server.locals.subport
             insert system.ports.system.data server
@@ -229,46 +229,46 @@ sys/make-scheme [
     default-response: [probe request.action]
 
     request-prototype: make object! [
-        raw: _
+        raw: '
         version: 1.1
         method: "GET"
-        action: _
-        headers: _
-        http-headers: _
-        oauth: _
-        target: _
-        binary: _
-        content: _
-        length: _
-        timeout: _
+        action: '
+        headers: '
+        http-headers: '
+        oauth: '
+        target: '
+        binary: '
+        content: '
+        length: '
+        timeout: '
         type: 'application/x-www-form-urlencoded
         server-software: unspaced [
             "Rebol/" system.product space "v" system.version
         ]
-        server-name: _
-        gateway-interface: _
+        server-name: '
+        gateway-interface: '
         server-protocol: "http"
-        server-port: _
-        request-method: _
-        request-uri: _
-        path-info: _
-        path-translated: _
-        script-name: _
-        query-string: _
-        remote-host: _
-        remote-addr:
-        auth-type: _
-        remote-user: _
-        remote-ident: _
-        content-type: _
-        content-length: _
-        error: _
+        server-port: '
+        request-method: '
+        request-uri: '
+        path-info: '
+        path-translated: '
+        script-name: '
+        query-string: '
+        remote-host: '
+        remote-addr: '
+        auth-type: ' 
+        remote-user: ' 
+        remote-ident: ' 
+        content-type: ' 
+        content-length: ' 
+        error: '
     ]
 
     response-prototype: make object! [
         status: 404
         content: "Not Found"
-        location: _
+        location: '
         type: "text/html"
         length: 0
         kill?: false
@@ -332,16 +332,16 @@ sys/make-scheme [
         header-prototype (make object! [
             Accept: "*/*"
             Connection: "close"
-            User-Agent: _
-            Content-Length: _
-            Content-Type: _
-            Authorization: _
-            Range: _
-            Referer: _
+            User-Agent: '
+            Content-Length: '
+            Content-Type: '
+            Authorization: '
+            Range: '
+            Referer: '
         ])
     ][
-        client/locals/request: make request-prototype [
-            parse raw: client/data [
+        client.locals.request: make request-prototype [
+            parse raw: client.data [
                 method: across request-action, space
                 request-uri: across [
                     target: across request-path, opt [
@@ -431,7 +431,7 @@ sys/make-scheme [
                     not match [binary! text!] response.content
                     empty? response.content
                 ] then [
-                    response/content: " "
+                    response.content: " "
                 ]
 
                 keep ["HTTP/1.1" response.status
