@@ -66,6 +66,12 @@ cycle [
     n: n + 1  ; at top so CONTINUE increments
     print newline
 
+    ; Test for overlength *before* we produce the data, because a hangup can
+    ; cause failures that make too big a data and continue the loop to the
+    ; point of running out of memory.
+    ;
+    if ((2 pow n) * length of str) > 20000000 [stop]  ; big enough?
+
     expected: copy str
     loop n [append expected expected]
     total: length of as binary! expected
@@ -161,7 +167,6 @@ cycle [
 
     print ["Client and Server exchanged:" total "bytes correctly"]
 
-    if total > 20000000 [stop]  ; big enough?
 ]
 
 quit 0  ; Note: Return code is heeded by test caller!
