@@ -43,7 +43,7 @@ process-id: call* probe compose [
             "wait srv: open [scheme: 'httpd 8000 ["
                 "set 'n n + 1"
                 "expected: copy str"
-                "loop n [append expected expected]"
+                "repeat n [append expected expected]"
                 "lib/print [{SERVER} n {:} (length of as binary! expected) {bytes}]"
                 "render expected"
             "]]"
@@ -73,7 +73,7 @@ cycle [
     if ((2 pow n) * length of str) > 20000000 [stop]  ; big enough?
 
     expected: copy str
-    loop n [append expected expected]
+    repeat n [append expected expected]
     total: length of as binary! expected
 
     partial: all [
