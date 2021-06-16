@@ -118,7 +118,7 @@ cycle [
             open port  ; !!! Weird double-open (second is CONNECT)
 
             comment [  ; !!! This does not work, why not?
-                while [not open? port] [wait port]
+                loop [not open? port] [wait port]
             ]
             wait 2  ; !!! Waiting for time seems to work (why?)
 
@@ -135,7 +135,7 @@ cycle [
             data: read/part port partial
 
             ; The AWAKE handler will close the port
-            while [open? port] [wait port]
+            loop [open? port] [wait port]
 
             continue
         ] 

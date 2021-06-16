@@ -43,7 +43,7 @@ as-text: function [
     <local> mark
 ][
     mark: binary
-    while [mark: try invalid-utf8? mark] [
+    loop [mark: try invalid-utf8? mark] [
         mark: change/part mark #{EFBFBD} 1
     ]
     to text! binary
