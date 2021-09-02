@@ -28,13 +28,15 @@ Rebol [
     }
 ]
 
+count: 0
+
 net-utils: reduce [
-    comment [
-        'net-log proc [return: <void> message [block! text!]] [
+;    comment [
+        'net-log func [return: <none> message [block! text!]] [
             print message
         ]
-    ]
-    'net-log :elide
+;    ]
+;    'net-log :elide
 ]
 
 as-text: function [
@@ -58,6 +60,7 @@ sys.make-scheme [
     wake-client: function [
         return: [port!]
         event [event!]
+        <with> count
     ][
         client: event.port
 
@@ -83,6 +86,9 @@ sys.make-scheme [
             ]
 
             'wrote [
+                count: count + 1
+                if count = 2 [write-stdout "CLOSING THE CLIENT NOW" close client]
+
                 ; !!! WROTE event used to be used for manual chunking
             ]
 
@@ -100,6 +106,7 @@ sys.make-scheme [
 
     init: function [server [port!]] [
         spec: server.spec
+        probe mold spec
 
         case [
             url? spec.ref []
@@ -147,8 +154,10 @@ sys.make-scheme [
         server.locals.subport.awake: function [event [event!]] [
             switch event.type [
                 'accept [
+                    write-stdout "HTTPD GOT THE ACCEPT EVENT"
                     client: take event.port
                     client.awake: :wake-client
+                    write-stdout "HTTPD IS READING THE CLIENT, ASYNCHRONOUSLY WE PRESUME"
                     read client
                     event
                 ]
@@ -379,8 +388,8 @@ sys.make-scheme [
             path-info: target: as-text :target
             action: spaced [method target]
             request-uri: as-text request-uri
-            server-port: query.mode client 'local-port
-            remote-addr: query.mode client 'remote-ip
+            server-port: (try query client).local-port
+            remote-addr: (try query client).remote-ip
 
             headers: make header-prototype
                 http-headers: new-line/skip headers true 2
