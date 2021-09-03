@@ -11,7 +11,9 @@ REBOL [
     }
 ]
 
-import %../httpd.reb
+; Assume we're being run from the httpd's directory.
+;
+import %httpd.reb
 
 if hangup?: did find system.options.args "hangup" [
     ;
@@ -37,7 +39,7 @@ n: 0
 ;
 process-id: call* probe compose [
     (system.options.boot) "--do" (spaced [
-        "import %../httpd.reb"
+        "import %httpd.reb"  ; again assuming we're in the httpd's directory
         "trap ["
             "str:" mold str "n:" n
             "wait srv: open [scheme: 'httpd 8000 ["
@@ -47,7 +49,7 @@ process-id: call* probe compose [
                 "lib/print [{SERVER} n {:} (length of as binary! expected) {bytes}]"
                 "render expected"
             "]]"
-        "] then (func [e] [print mold e])"
+        "] then (func [e] [print mold e.id, print mold/limit e.arg1 1000, print mold/limit e.arg2 1000, print mold/limit e.arg3 1000])"
     ])
 ]
 
@@ -59,8 +61,8 @@ quit: adapt :lib/quit [
 
 ; !!! What would the "legit" way to do this be?
 ;
-print "Waiting for 3 seconds to ensure server starts up..."
-wait 3
+print "Waiting for 10 seconds to ensure server starts up..."
+wait 10
 
 cycle [
     n: n + 1  ; at top so CONTINUE increments

@@ -1,4 +1,6 @@
-import %../httpd.reb
+; Assume we're being run from the httpd's directory
+; 
+import %httpd.reb
 
 ; http://www.fileformat.info/info/unicode/char/1f63a/index.htm
 expected: "HighCodepointCat(😺)"
@@ -7,10 +9,10 @@ expected: "HighCodepointCat(😺)"
 ;
 process-id: call* probe compose [
     (system/options/boot) "--do" (unspaced [
-        "import %../httpd.reb" space
+        "import %httpd.reb" space  ; again, assume running from httpd's directory
         "trap ["
             "wait srv: open [scheme: 'httpd 8000 [render {" expected "}]]"
-        "] then (func [e] [print mold e])"
+        "] then (func [e] [print {Server WAIT error!}, print mold e])"
     ])
 ]
 
@@ -22,8 +24,8 @@ quit: adapt :lib/quit [
 
 ; !!! What would the "legit" way to do this be?
 ;
-print "Waiting for 3 seconds to ensure server starts up..."
-wait 3
+print "Waiting for 10 seconds to ensure server starts up..."
+wait 10
 
 trap [
     actual: as text! read http://127.0.0.1:8000
