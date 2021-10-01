@@ -1,5 +1,5 @@
 #!/usr/bin/r3
-REBOL [Name: "webserver"]
+REBOL [Name: webserver]
 -help: does [lib/print {
 USAGE: r3 webserver.reb [OPTIONS]
 OPTIONS:
