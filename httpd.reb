@@ -28,8 +28,6 @@ Rebol [
     }
 ]
 
-count: 0
-
 net-utils: reduce [
 ;    comment [
         'net-log func [return: <none> message [block! text!]] [
@@ -86,9 +84,6 @@ sys.make-scheme [
             ]
 
             'wrote [
-                count: count + 1
-                if count = 2 [write-stdout "CLOSING THE CLIENT NOW" close client]
-
                 ; !!! WROTE event used to be used for manual chunking
             ]
 
@@ -154,10 +149,8 @@ sys.make-scheme [
         server.locals.subport.awake: function [event [event!]] [
             switch event.type [
                 'accept [
-                    write-stdout "HTTPD GOT THE ACCEPT EVENT"
                     client: take event.port
                     client.awake: :wake-client
-                    write-stdout "HTTPD IS READING THE CLIENT, ASYNCHRONOUSLY WE PRESUME"
                     read client
                     event
                 ]
