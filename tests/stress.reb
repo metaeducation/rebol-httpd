@@ -117,7 +117,7 @@ cycle [
                 return false  ; fall through to default AWAKE function
             ]
                 
-            open port  ; !!! Weird double-open (second is CONNECT)
+            connect port
 
             comment [  ; !!! This does not work, why not?
                 loop [not open? port] [wait port]
