@@ -99,30 +99,7 @@ cycle [
     trap [
         if partial != total [
             port: open tcp://127.0.0.1:8000  ; raw TCP so we can hangup
-
-            port.awake: function [e [event!]] [
-                if e.type = 'read [
-                    if partial != length of e.port.data [
-                        print [
-                           "READ with /PART of" partial "read wrong byte count:"
-                           (length of e.port.data)
-                        ]
-                        quit 1
-                    ]
-
-                    print ["Client hanging up after only reading:" partial "bytes"]
-                    close port  ; close with server data still pending
-                    return true  ; and say "we handled it"
-                ]
-                return false  ; fall through to default AWAKE function
-            ]
-                
             connect port
-
-            comment [  ; !!! This does not work, why not?
-                loop [not open? port] [wait port]
-            ]
-            wait 2  ; !!! Waiting for time seems to work (why?)
 
             ; We have to ask for data for the server to send anything.
             ; Use the bare minimum request.
@@ -134,10 +111,18 @@ cycle [
                 "Connection: close" cr lf
                 cr lf
             ]
-            data: read/part port partial
 
-            ; The AWAKE handler will close the port
-            loop [open? port] [wait port]
+            data: read/part port partial
+            if partial != length of data [
+                 print [
+                     "READ with /PART of" partial "read wrong byte count:"
+                     (length of data)
+                 ]
+                 quit 1
+            ]
+
+            print ["Client hanging up after only reading:" partial "bytes"]
+            close port  ; close with server data still pending
 
             continue
         ] 

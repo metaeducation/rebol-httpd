@@ -26,6 +26,12 @@ Rebol [
 
         Then point a browser at http://127.0.0.1:8000
     }
+    Notes: {
+        This has been transitionally changed to synchronous processing, as
+        a step toward moving to a model more like goroutines:
+
+        https://forum.rebol.info/t/1733
+    }
 ]
 
 net-utils: reduce [
@@ -35,6 +41,39 @@ net-utils: reduce [
         ]
 ;    ]
 ;    'net-log :elide
+]
+
+; Previously WRITE was asynchronous and we can't catch errors via TRAP:
+;
+;   https://github.com/metaeducation/rebol-httpd/issues/4
+;
+; The new idea is that you can program -as if- things are synchronous...which
+; is easy enough since currently they actually are.  But the idea is that the
+; errors would be delivered to callsites as if they were as well.  Despite this
+; being a relief to not have a different model for errors from everything else,
+; there are still questions everything else has to answer:
+;
+;   https://forum.rebol.info/t/the-need-to-rethink-error/1371
+;
+trap-httpd: func [block [block!]] [
+    trap block then err -> [
+        ;
+        ; !!! We can now discern if it was the WRITE of the header or the WRITE
+        ; of the content that failed...should errors be different?
+        ;
+        net-utils.net-log [
+            "Response not sent to client.  Reason:" err.message
+        ]
+
+        ; Don't take down the server process on typical client disconnections.
+        ;
+        if not find [  ; !!! Should use ID codes, not strings!
+            "Connection reset by peer"
+            "Broken pipe"
+        ] err.message [
+            fail err
+        ]
+    ]
 ]
 
 as-text: function [
@@ -54,50 +93,6 @@ sys.make-scheme [
     name: 'httpd
 
     spec: make system.standard.port-spec-head [port-id: actions: _]
-
-    wake-client: function [
-        return: [port!]
-        event [event!]
-        <with> count
-    ][
-        client: event.port
-
-        switch event.type [
-            'read [
-                net-utils.net-log unspaced [
-                    "Instance [" client.locals.instance: me + 1 "]"
-                ]
-
-                case [
-                    not client.locals.parent.locals.open? [
-                        close client
-                        client.locals.parent
-                    ]
-
-                    find client.data #{0D0A0D0A} [
-                        transcribe client
-                        dispatch client
-                    ]
-                ] else [
-                    read client
-                ]
-            ]
-
-            'wrote [
-                ; !!! WROTE event used to be used for manual chunking
-            ]
-
-            'close [
-                close client
-            ]
-
-            (net-utils.net-log [
-                "Unexpected Client Event:" uppercase form event.type
-            ])
-        ]
-
-        return client
-    ]
 
     init: function [server [port!]] [
         spec: server.spec
@@ -146,52 +141,27 @@ sys.make-scheme [
             parent: :server
         ]
 
-        server.locals.subport.awake: function [event [event!]] [
-            switch event.type [
-                'accept [
-                    client: take event.port
-                    client.awake: :wake-client
-                    read client
-                    event
-                ]
-            ] else [false]
-        ]
+        server.locals.subport.spec.accept: function [client [port!]] [
+            net-utils.net-log unspaced [
+                "Instance [" client.locals.instance: me + 1 "]"
+            ]
 
-        server.awake: function [e [event!]] [
-            switch e.type [
-                'close [
-                    close e.port
-                    true
-                ]
-
-                ; Since WRITE is asynchronous we can't catch errors via TRAP
-                ; https://github.com/metaeducation/rebol-httpd/issues/4
-                ;
-                'error [
-                    print ["Now we're in the SERVER/AWAKE with an error"]
-                    -- err: ensure error! e.port.error
-
-                    ; !!! No way to tell at the moment whether it was the
-                    ; async WRITE of the header or the async WRITE of the
-                    ; content that failed.  Better identity mechanism would
-                    ; be needed for that.
-                    ;
-                    net-utils.net-log [
-                        "Response header.content not sent to client."
-                            "Reason:" err.message
+            cycle [
+                read client
+                case [
+                    not client.locals.parent.locals.open? [
+                        close client
+                        client.locals.parent
                     ]
 
-                    if not find [  ; !!! Should use ID codes, not strings!
-                        "Connection reset by peer"
-                        "Broken pipe"
-                    ] err.message [
-                        e.port.error: null
-                        return true  ; Suppress these to keep server running
+                    find client.data #{0D0A0D0A} [
+                        transcribe client
+                        dispatch client
                     ]
-
-                    return false  ; let default AWAKE handler do the FAIL
+                ] then [
+                    stop
                 ]
-            ] else [false]
+            ]
         ]
 
         server
@@ -219,11 +189,8 @@ sys.make-scheme [
         ]
 
         close: func [server [port!]] [
-            server.awake: server.locals.subport.awake: null
             server.locals.open?: no
             close server.locals.subport
-            insert system.ports.system.data server
-            ; ^^^ would like to know why...
             server
         ]
     ]
@@ -259,11 +226,11 @@ sys.make-scheme [
         query-string: '
         remote-host: '
         remote-addr: '
-        auth-type: ' 
-        remote-user: ' 
-        remote-ident: ' 
-        content-type: ' 
-        content-length: ' 
+        auth-type: '
+        remote-user: '
+        remote-ident: '
+        content-type: '
+        content-length: '
         error: '
     ]
 
@@ -471,10 +438,9 @@ sys.make-scheme [
             response.content: gzip response.content
         ]
 
-        ; Since WRITE is asynchronous we can't catch errors via TRAP
-        ; https://github.com/metaeducation/rebol-httpd/issues/4
-        ;
-        write client hdr: build-header response  ; !!! is HDR var necessary?
-        write client response.content
+        trap-httpd [  ; don't crash server if client disconnects while we write
+            write client hdr: build-header response
+            write client response.content
+        ]
     ]
 ]
