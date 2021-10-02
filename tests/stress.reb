@@ -49,7 +49,7 @@ process-id: call* probe compose [
                 "lib/print [{SERVER} n {:} (length of as binary! expected) {bytes}]"
                 "render expected"
             "]]"
-        "] then (func [e] [print mold e.id, print mold/limit e.arg1 1000, print mold/limit e.arg2 1000, print mold/limit e.arg3 1000])"
+        "] then (func [e] [print mold/limit e 2000])"
     ])
 ]
 
