@@ -59,7 +59,8 @@ trap-httpd: func [block [block!]] [
     trap block then err -> [
         ;
         ; !!! We can now discern if it was the WRITE of the header or the WRITE
-        ; of the content that failed...should errors be different?
+        ; of the content that failed...should errors be different?  How about
+        ; for READ
         ;
         net-utils.net-log [
             "Response not sent to client.  Reason:" err.message
@@ -70,6 +71,8 @@ trap-httpd: func [block [block!]] [
         if not find [  ; !!! Should use ID codes, not strings!
             "Connection reset by peer"
             "Broken pipe"
+            "operation canceled"  ; seen on READ
+            "end of file"  ; seen on READ
         ] err.message [
             fail err
         ]
@@ -147,7 +150,17 @@ sys.make-scheme [
             ]
 
             cycle [
-                read client
+                ;
+                ; It is possible that while we are reading that the client
+                ; could hang up.  For such errors that are common, just close
+                ; the port.
+                ;
+                trap-httpd [
+                    read client
+                ] then [
+                    stop
+                ]
+
                 case [
                     not client.locals.parent.locals.open? [
                         stop
@@ -158,14 +171,12 @@ sys.make-scheme [
                         dispatch client
                         stop
                     ]
-                ] then [
-                    stop
                 ]
             ]
 
             net-utils.net-log unspaced [
                 "Closing Connection [" client.locals.instance "]"
-        ]
+            ]
 
             close client
         ]
