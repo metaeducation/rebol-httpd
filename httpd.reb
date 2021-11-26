@@ -143,28 +143,32 @@ sys.make-scheme [
 
         server.locals.subport.spec.accept: function [client [port!]] [
             net-utils.net-log unspaced [
-                "Instance [" client.locals.instance: me + 1 "]"
+                "Accepting Connection [" client.locals.instance: me + 1 "]"
             ]
 
             cycle [
                 read client
                 case [
                     not client.locals.parent.locals.open? [
-                        close client
-                        client.locals.parent
+                        stop
                     ]
 
                     find client.data #{0D0A0D0A} [
                         transcribe client
                         dispatch client
+                        stop
                     ]
                 ] then [
                     stop
                 ]
             ]
+
+            net-utils.net-log unspaced [
+                "Closing Connection [" client.locals.instance "]"
         ]
 
-        server
+            close client
+        ]
     ]
 
     actor: [
