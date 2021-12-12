@@ -22,8 +22,8 @@ if hangup?: did find system.options.args "hangup" [
     ; test new hangup points, while still being reproducible.
     ;
     either system.commit [
-        print ["Seeding Hangup Randomization with Git Commit:" system/commit]
-        random/seed system.commit 
+        print ["Seeding Hangup Randomization with Git Commit:" system.commit]
+        random/seed system.commit
     ][
         print "No system.commit--not seeding hangup randomization"
     ]
@@ -46,7 +46,7 @@ process-id: call* probe compose [
                 "set 'n n + 1"
                 "expected: copy str"
                 "repeat n [append expected expected]"
-                "lib/print [{SERVER} n {:} (length of as binary! expected) {bytes}]"
+                "lib.print [{SERVER} n {:} (length of as binary! expected) {bytes}]"
                 "render expected"
             "]]"
         "] then (func [e] [print mold/limit e 2000])"
@@ -55,7 +55,7 @@ process-id: call* probe compose [
 
 use [quit] [
 
-quit: adapt :lib/quit [
+quit: adapt :lib.quit [
     terminate process-id
 ]
 
@@ -84,7 +84,7 @@ cycle [
     ]
     then [
         ; If we need to hang up, we read at the raw TCP level vs. HTTP so we
-        ; can pick how many bytes to read before closing.  But we are 
+        ; can pick how many bytes to read before closing.  But we are
         ; going to be getting http headers with the data.  So we'll cut off
         ; the connection after some amount of the content bytes size...which
         ; won't ever cut off at the tail of the transmission (but close
@@ -125,7 +125,7 @@ cycle [
             close port  ; close with server data still pending
 
             continue
-        ] 
+        ]
 
         === NORMAL READ ===
         ; expect success (this isn't testing server-side disconnects)
@@ -146,7 +146,7 @@ cycle [
         print ["READ had an error:" mold e]
         quit 1
     ])
-    
+
     if actual !== expected [
         print ["!! Bad response content bytes..."]
         quit 1
