@@ -1,5 +1,5 @@
 ; Assume we're being run from the httpd's directory
-; 
+;
 import %httpd.reb
 
 ; http://www.fileformat.info/info/unicode/char/1f63a/index.htm
@@ -8,7 +8,7 @@ expected: "HighCodepointCat(😺)"
 ; CALL* does not wait for completion, so the server runs in the background
 ;
 process-id: call* probe compose [
-    (system/options/boot) "--do" (unspaced [
+    (system.options.boot) "--do" (unspaced [
         "import %httpd.reb" space  ; again, assume running from httpd's directory
         "trap ["
             "wait srv: open [scheme: 'httpd 8000 [render {" expected "}]]"
@@ -18,7 +18,7 @@ process-id: call* probe compose [
 
 use [quit] [
 
-quit: adapt :lib/quit [
+quit: adapt :lib.quit [
     terminate process-id
 ]
 
