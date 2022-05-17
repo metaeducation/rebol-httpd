@@ -101,15 +101,12 @@ sys.make-scheme [
         spec: server.spec
         probe mold spec
 
-        case [
-            url? spec.ref []
-            block? spec.actions []
-            parse? spec.ref [
+        any [
+            url? spec.ref
+            block? spec.actions
+            did uparse spec.ref [
                 set-word! lit-word!
-                integer! block!
-            ][
-                spec.port-id: spec.ref.3
-                spec.actions: spec.ref.4
+                spec.port-id: integer!, spec.actions: block!
             ]
             fail "Server lacking core features."
         ]
