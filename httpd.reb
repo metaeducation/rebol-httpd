@@ -85,7 +85,7 @@ as-text: function [
     <local> mark
 ][
     mark: binary
-    loop [mark: try invalid-utf8? mark] [
+    while [mark: try invalid-utf8? mark] [
         mark: change/part mark #{EFBFBD} 1
     ]
     to text! binary
@@ -290,14 +290,14 @@ sys.make-scheme [
 
         request-query (use [chars] [
             chars: complement charset [#"^@" - #" "]
-            [while chars]  ; WHILE instead of SOME (empty requests are legal)
+            [maybe some chars]  ; (empty requests are legal)
         ])
 
         header-feed ([newline | cr lf])
 
         header-part (use [chars] [
             chars: complement charset [#"^(00)" - #"^(1F)"]
-            [some chars while [header-feed some " " some chars]]
+            [some chars, maybe some [header-feed some " " some chars]]
         ])
 
         header-name (use [chars] [
@@ -334,7 +334,7 @@ sys.make-scheme [
                 header-feed
                 (headers: make block! 10)
                 some [
-                    name: across header-name, ":", while " "
+                    name: across header-name, ":", maybe some " "
                     value: across header-part, header-feed
                     (
                         name: as-text name
