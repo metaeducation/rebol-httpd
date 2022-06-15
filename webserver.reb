@@ -103,13 +103,14 @@ status-codes: [
 ]
 
 html-list-dir: function [
-  "Output dir contents in HTML."
+  "Output dir contents in HTML"
+  return: [text!]
   dir [file!]
   ][
   if trap [list: read dir] [return _]
   ;;for-next list [if 'dir = exists? join dir list.1 [append list.1 %/]]
   ;; ^-- workaround for #838
-  sort/compare list func [x y] [
+  sort/compare list lambda [x y] [
     case [
       all [dir? x not dir? y] [true]
       all [not dir? x dir? y] [false]
@@ -150,10 +151,13 @@ html-list-dir: function [
       </a> <br/>
     ]
   ]
-  data
+  return data
 ]
 
-parse-query: function [query] [
+parse-query: function [
+  return: [block!]
+  query
+  ][
   xchar: charset "=&"
   r: make block! 0
   k: v: _
@@ -170,13 +174,14 @@ parse-query: function [query] [
     )
     opt skip
   ]]
-  r
+  return r
 ]
 
 request: _
 
 handle-request: function [
-    req [object!]
+  return [integer! block!]
+  req [object!]
   ][
   set 'request req  ; global
   req.target: my dehex
@@ -263,10 +268,10 @@ handle-request: function [
     ]
     return reduce [200 try select mime :mimetype data]
   ]
-  404
+  return 404
 ]
 
-redirect-response: function [target] [
+redirect-response: lambda [target] [
   reduce [200 mime/html unspaced [
     {<html><head><meta http-equiv="Refresh" content="0; url=}
     target {" /></head></html>}

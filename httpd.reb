@@ -55,7 +55,10 @@ net-utils: reduce [
 ;
 ;   https://forum.rebol.info/t/the-need-to-rethink-error/1371
 ;
-trap-httpd: func [block [block!]] [
+trap-httpd: func [
+    return: [<opt> any-value!]
+    block [block!]
+][
     trap block then err -> [
         ;
         ; !!! We can now discern if it was the WRITE of the header or the WRITE
@@ -97,7 +100,7 @@ sys.make-scheme [
 
     spec: make system.standard.port-spec-head [port-id: actions: _]
 
-    init: function [server [port!]] [
+    init: function [return: <none> server [port!]] [
         spec: server.spec
         probe mold spec
 
@@ -141,7 +144,10 @@ sys.make-scheme [
             parent: :server
         ]
 
-        server.locals.subport.spec.accept: function [client [port!]] [
+        server.locals.subport.spec.accept: function [
+            return: <none>
+            client [port!]
+        ][
             net-utils.net-log unspaced [
                 "Accepting Connection [" client.locals.instance: me + 1 "]"
             ]
@@ -180,14 +186,14 @@ sys.make-scheme [
     ]
 
     actor: [
-        open: func [server [port!]] [
+        open: lambda [server [port!]] [
             net-utils.net-log ["Server running on port id" server.spec.port-id]
             open server.locals.subport
             server.locals.open?: yes
             server
         ]
 
-        reflect: func [server [port!] property [word!]][
+        reflect: lambda [server [port!] property [word!]][
             switch property [
                 'open? [
                     server.locals.open?
@@ -200,7 +206,7 @@ sys.make-scheme [
             ]
         ]
 
-        close: func [server [port!]] [
+        close: lambda [server [port!]] [
             server.locals.open?: no
             close server.locals.subport
             server
