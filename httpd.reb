@@ -83,6 +83,7 @@ trap-httpd: lambda [
 
 as-text: function [
     {Variant of AS TEXT! that scrubs out invalid UTF-8 sequences}
+    return: [text!]
     binary [binary!]
     <local> mark
 ][
@@ -90,7 +91,7 @@ as-text: function [
     while [mark: try invalid-utf8? mark] [
         mark: change/part mark #{EFBFBD} 1
     ]
-    to text! binary
+    return to text! binary
 ]
 
 sys.make-scheme [
