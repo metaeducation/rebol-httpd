@@ -265,12 +265,14 @@ sys.make-scheme [
         render: meth [response [text! binary!]] [
             status: 200
             content: response
+            return none
         ]
 
         print: meth [response [text!]] [
             status: 200
             content: response
             type: "text/plain"
+            return none
         ]
 
         redirect: meth [target [url! file!] /code [integer!]] [
@@ -278,6 +280,7 @@ sys.make-scheme [
             content: "Redirecting..."
             type: "text/plain"
             location: target
+            return none
         ]
     ]
 
