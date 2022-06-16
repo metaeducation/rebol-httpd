@@ -412,7 +412,7 @@ sys.make-scheme [
             503 "Service Unavailable"
         ])
 
-        build-header (function [response [object!]] [
+        build-header (lambda [response [object!]] [
             append make binary! 1024 spaced collect [
                 if not find status-codes response.status [
                     response.status: 500
