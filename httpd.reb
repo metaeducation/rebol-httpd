@@ -55,8 +55,7 @@ net-utils: reduce [
 ;
 ;   https://forum.rebol.info/t/the-need-to-rethink-error/1371
 ;
-trap-httpd: func [
-    return: [<opt> any-value!]
+trap-httpd: lambda [
     block [block!]
 ][
     trap block then err -> [
