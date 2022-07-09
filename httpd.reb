@@ -94,7 +94,7 @@ as-text: function [
     return to text! binary
 ]
 
-sys.make-scheme [
+sys.util.make-scheme [
     title: "HTTP Server"
     name: 'httpd
 
