@@ -110,8 +110,8 @@ html-list-dir: function [
   if trap [list: read dir] [return _]
   ;;for-next list [if 'dir = exists? join dir list.1 [append list.1 %/]]
   ;; ^-- workaround for #838
-  sort/compare list lambda [x y] [
-    case [
+  sort/compare list func [x y] [
+    return case [
       all [dir? x not dir? y] [true]
       all [not dir? x dir? y] [false]
       y > x [true]

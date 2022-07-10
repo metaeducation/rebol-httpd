@@ -55,10 +55,10 @@ net-utils: reduce [
 ;
 ;   https://forum.rebol.info/t/the-need-to-rethink-error/1371
 ;
-trap-httpd: lambda [
+trap-httpd: func [
     block [block!]
 ][
-    trap block then err -> [
+    return trap block then err -> [
         ;
         ; !!! We can now discern if it was the WRITE of the header or the WRITE
         ; of the content that failed...should errors be different?  How about
@@ -186,17 +186,17 @@ sys.util.make-scheme [
     ]
 
     actor: [
-        open: lambda [server [port!]] [
+        open: func [server [port!]] [
             net-utils.net-log ["Server running on port id" server.spec.port-id]
             open server.locals.subport
             server.locals.open?: yes
-            server
+            return server
         ]
 
-        reflect: lambda [server [port!] property [word!]][
+        reflect: func [server [port!] property [word!]][
             switch property [
                 'open? [
-                    server.locals.open?
+                    return server.locals.open?
                 ]
 
                 fail [
@@ -206,10 +206,10 @@ sys.util.make-scheme [
             ]
         ]
 
-        close: lambda [server [port!]] [
+        close: func [server [port!]] [
             server.locals.open?: no
             close server.locals.subport
-            server
+            return server
         ]
     ]
 
@@ -412,8 +412,8 @@ sys.util.make-scheme [
             503 "Service Unavailable"
         ])
 
-        build-header (lambda [response [object!]] [
-            append make binary! 1024 spaced collect [
+        build-header (func [response [object!]] [
+            return append make binary! 1024 spaced collect [
                 if not find status-codes response.status [
                     response.status: 500
                 ]
