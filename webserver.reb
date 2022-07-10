@@ -18,7 +18,7 @@ root-dir: %"./"
 access-dir: false
 verbose: 1
 
-uparse system.options.args [maybe some [
+parse system.options.args [maybe some [
   "-a", access-dir: [
       <end> (true)
     | "true" (true)
@@ -131,7 +131,7 @@ html-list-dir: function [
   for-each i list [
     is-rebol-file: did all [
       not dir? i
-      parse? i [thru ".reb"]
+      did parse i [thru ".reb"]
     ]
     append data unspaced [
       {<a }
@@ -164,8 +164,8 @@ parse-query: function [
   query: to-text query
   i: 0
   parse query [any [
-    copy k [to xchar | to end]
-    [ "=" copy v [to "&" | to end]
+    k: across [to xchar | to <end>]
+    [ "=" v: across [to "&" | to <end>]
     | (v: k k: i: i + 1)
     ]
     (
@@ -297,8 +297,8 @@ server: open compose [
     ; https://github.com/metaeducation/rebol-server/issues/9
     ;
     trap [
-      uparse request.target [
-        "/testwrite" across thru end
+      parse request.target [
+        "/testwrite" across thru <end>
       ] then testfile -> [
         write as file! testfile "TESTWRITE!"
         res: reduce [

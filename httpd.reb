@@ -107,7 +107,7 @@ sys.util.make-scheme [
         any [
             url? spec.ref
             block? spec.actions
-            did uparse spec.ref [
+            did parse spec.ref [
                 set-word! lit-word!
                 spec.port-id: integer!, spec.actions: block!
             ]
@@ -339,7 +339,7 @@ sys.util.make-scheme [
                     ]
                 ]
                 spaces-or-tabs
-                "HTTP/" copy version ["1.0" | "1.1"]
+                "HTTP/" version: across ["1.0" | "1.1"]
                 header-feed
                 (headers: make block! 10)
                 some [
@@ -355,7 +355,7 @@ sys.util.make-scheme [
                         ]
                     )
                 ]
-                header-feed, content: here, to end (
+                header-feed, content: <here>, to <end> (
                     binary: copy :content
                     content: does [content: as-text binary]
                 )
