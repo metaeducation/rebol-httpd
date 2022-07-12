@@ -380,7 +380,7 @@ sys.util.make-scheme [
                 copy/part type find type ";"   ; FIND revokes /PART when null
             ] else ["text/html"]
 
-            length: content-length: attempt [to integer! length] else [0]
+            length: content-length: attempt [to integer! try length] else [0]
 
             net-utils.net-log action
         ]
