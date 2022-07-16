@@ -88,7 +88,7 @@ as-text: function [
     <local> mark
 ][
     mark: binary
-    while [mark: try invalid-utf8? mark] [
+    while [mark: invalid-utf8? mark] [
         mark: change/part mark #{EFBFBD} 1
     ]
     return to text! binary
@@ -369,8 +369,8 @@ sys.util.make-scheme [
             path-info: target: as-text :target
             action: spaced [method target]
             request-uri: as-text request-uri
-            server-port: (try query client).local-port
-            remote-addr: (try query client).remote-ip
+            server-port: try select (query client) 'local-port
+            remote-addr: try select (query client) 'remote-ip
 
             headers: make header-prototype
                 http-headers: new-line/skip headers true 2
@@ -380,7 +380,9 @@ sys.util.make-scheme [
                 copy/part type find type ";"   ; FIND revokes /PART when null
             ] else ["text/html"]
 
-            length: content-length: attempt [to integer! try length] else [0]
+            length: content-length: attempt [  ; !!! Can LENGTH be non-integer?
+                try to integer! length  ; !!! (TRY alone handles NULL length)
+            ] else [0]
 
             net-utils.net-log action
         ]
