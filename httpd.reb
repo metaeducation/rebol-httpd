@@ -130,7 +130,9 @@ sys.util.make-scheme [
             redirect: get in response 'redirect
             print: get in response 'print
 
-            ((match block! server.spec.actions else [default-response]))
+            (spread (
+                match block! server.spec.actions else [default-response]
+            ))
         ]
 
         server.locals.subport: make port! [scheme: 'tcp]
@@ -348,7 +350,7 @@ sys.util.make-scheme [
                     (
                         name: as-text name
                         value: as-text value
-                        append headers reduce [to set-word! name value]
+                        append headers spread reduce [to set-word! name value]
                         switch name [
                             "Content-Type" [content-type: value]
                             "Content-Length" [length: content-length: value]
@@ -426,24 +428,24 @@ sys.util.make-scheme [
                     response.content: " "
                 ]
 
-                keep ["HTTP/1.1" response.status
+                keep spread ["HTTP/1.1" response.status
                     select status-codes response.status]
-                keep [cr lf "Content-Type:" response.type]
-                keep [cr lf "Content-Length:"
+                keep spread [cr lf "Content-Type:" response.type]
+                keep spread [cr lf "Content-Length:"
                     length of as binary! response.content  ; bytes (not chars)
                 ]
                 if response.compress? [
-                    keep [cr lf "Content-Encoding:" "gzip"]
+                    keep spread [cr lf "Content-Encoding:" "gzip"]
                 ]
                 if response.location [
-                    keep [cr lf "Location:" response/location]
+                    keep spread [cr lf "Location:" response/location]
                 ]
                 if response.close? [
-                    keep [cr lf "Connection:" "close"]
+                    keep spread [cr lf "Connection:" "close"]
                 ]
-                keep [cr lf "Cache-Control:" "no-cache"]
-                keep [cr lf "Access-Control-Allow-Origin: *"]
-                keep [cr lf cr lf]
+                keep spread [cr lf "Cache-Control:" "no-cache"]
+                keep spread [cr lf "Access-Control-Allow-Origin: *"]
+                keep spread [cr lf cr lf]
             ]
         ])
     ][
