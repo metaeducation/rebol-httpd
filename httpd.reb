@@ -383,7 +383,7 @@ sys.util.make-scheme [
             ] else ["text/html"]
 
             length: content-length: attempt [  ; !!! Can LENGTH be non-integer?
-                try to integer! length  ; !!! (TRY alone handles NULL length)
+                to integer! maybe length
             ] else [0]
 
             net-utils.net-log action
