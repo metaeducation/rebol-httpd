@@ -34,13 +34,12 @@ Rebol [
     }
 ]
 
-net-utils: reduce [
-;    comment [
-        'net-log func [return: <none> message [block! text!]] [
-            print message
-        ]
+net-utils: make object! [
+;    net-log: func [return: <none> message [block! text!]] [
+;        print message
 ;    ]
-;    'net-log :elide
+
+    net-log: :elide
 ]
 
 ; Previously WRITE was asynchronous and we can't catch errors via TRAP:
