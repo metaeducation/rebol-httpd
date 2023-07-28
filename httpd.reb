@@ -114,9 +114,9 @@ sys.util.make-scheme [
         ]
 
         server.locals: make object! [
-            handler: '
-            subport: '
-            open?: '
+            handler: ~
+            subport: ~
+            open?: ~
             clients: make block! 1024
         ]
 
@@ -140,8 +140,8 @@ sys.util.make-scheme [
 
         server.locals.subport.locals: make object! [
             instance: 0
-            request: '
-            response: '
+            request: null
+            response: null
             parent: :server
         ]
 
@@ -217,46 +217,46 @@ sys.util.make-scheme [
     default-response: [probe request.action]
 
     request-prototype: make object! [
-        raw: '
+        raw: null
         version: 1.1
         method: "GET"
-        action: '
-        headers: '
-        http-headers: '
-        oauth: '
-        target: '
-        binary: '
-        content: '
-        length: '
-        timeout: '
+        action: null
+        headers: null
+        http-headers: null
+        oauth: null
+        target: null
+        binary: null
+        content: null
+        length: null
+        timeout: null
         type: 'application/x-www-form-urlencoded
         server-software: unspaced [
             "Rebol/" system.product space "v" system.version
         ]
-        server-name: '
-        gateway-interface: '
+        server-name: null
+        gateway-interface: null
         server-protocol: "http"
-        server-port: '
-        request-method: '
-        request-uri: '
-        path-info: '
-        path-translated: '
-        script-name: '
-        query-string: '
-        remote-host: '
-        remote-addr: '
-        auth-type: '
-        remote-user: '
-        remote-ident: '
-        content-type: '
-        content-length: '
-        error: '
+        server-port: null
+        request-method: null
+        request-uri: null
+        path-info: null
+        path-translated: null
+        script-name: null
+        query-string: null
+        remote-host: null
+        remote-addr: null
+        auth-type: null
+        remote-user: null
+        remote-ident: null
+        content-type: null
+        content-length: null
+        error: null
     ]
 
     response-prototype: make object! [
         status: 404
         content: "Not Found"
-        location: '
+        location: null
         type: "text/html"
         length: 0
         kill?: false
@@ -323,12 +323,12 @@ sys.util.make-scheme [
         header-prototype (make object! [
             Accept: "*/*"
             Connection: "close"
-            User-Agent: '
-            Content-Length: '
-            Content-Type: '
-            Authorization: '
-            Range: '
-            Referer: '
+            User-Agent: null
+            Content-Length: null
+            Content-Type: null
+            Authorization: null
+            Range: null
+            Referer: null
         ])
     ][
         client.locals.request: make request-prototype [
@@ -370,8 +370,8 @@ sys.util.make-scheme [
             path-info: target: as-text :target
             action: spaced [method target]
             request-uri: as-text request-uri
-            server-port: try select (query client) 'local-port
-            remote-addr: try select (query client) 'remote-ip
+            server-port: select (maybe query client) 'local-port
+            remote-addr: select (maybe query client) 'remote-ip
 
             headers: make header-prototype
                 http-headers: new-line/skip headers true 2
