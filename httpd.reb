@@ -170,11 +170,20 @@ sys.util.make-scheme [
                         stop
                     ]
 
-                    find client.data #{0D0A0D0A} [
+                    ; @gchiu's copy of httpd had handling for null client.data
+                    ; (hence the `maybe` on the find of client.data)  This
+                    ; should probably not be possible, so assert...but put
+                    ; in the changes just in case.
+                    ;
+                    assert [not null? client.data, binary? client.data]
+
+                    find maybe client.data #{0D0A0D0A} [
                         transcribe client
                         dispatch client
                         stop
                     ]
+
+                    true [stop]  ; from @gchiu's copy
                 ]
             ]
 
