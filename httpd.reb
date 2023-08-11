@@ -106,9 +106,10 @@ sys.util.make-scheme [
         any [
             url? spec.ref
             block? spec.actions
-            did parse spec.ref [
+            try parse spec.ref [
                 set-word! lit-word!
                 spec.port-id: integer!, spec.actions: block!
+                <end> accept (true)
             ]
             fail "Server lacking core features."
         ]
@@ -369,7 +370,7 @@ sys.util.make-scheme [
                     binary: copy :content
                     content: does [content: as-text binary]
                 )
-            ] else [
+            ] except [
                 net-utils.net-log error: "Could Not Parse Request"
                 return
             ]
