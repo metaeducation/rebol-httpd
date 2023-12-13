@@ -107,7 +107,7 @@ sys.util.make-scheme [
             url? spec.ref
             block? spec.actions
             try parse spec.ref [
-                set-word! lit-word!
+                set-word! lit-word?!
                 spec.port-id: integer!, spec.actions: block!
                 <end> accept (true)
             ]
