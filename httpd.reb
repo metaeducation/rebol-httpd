@@ -35,7 +35,7 @@ Rebol [
 ]
 
 net-utils: make object! [
-;    net-log: func [return: <none> message [block! text!]] [
+;    net-log: func [return: [~] message [block! text!]] [
 ;        print message
 ;    ]
 
@@ -99,7 +99,7 @@ sys.util.make-scheme [
 
     spec: make system.standard.port-spec-head [port-id: actions: _]
 
-    init: function [return: <none> server [port!]] [
+    init: function [return: [~] server [port!]] [
         spec: server.spec
         probe mold spec
 
@@ -122,7 +122,7 @@ sys.util.make-scheme [
         ]
 
         server.locals.handler: function [
-            return: <none>
+            return: [~]
             request [object!]
             response [object!]
         ] compose [
@@ -147,7 +147,7 @@ sys.util.make-scheme [
         ]
 
         server.locals.subport.spec.accept: function [
-            return: <none>
+            return: [~]
             client [port!]
         ][
             net-utils.net-log unspaced [
@@ -276,14 +276,12 @@ sys.util.make-scheme [
         render: meth [response [text! binary!]] [
             status: 200
             content: response
-            return none
         ]
 
         print: meth [response [text!]] [
             status: 200
             content: response
             type: "text/plain"
-            return none
         ]
 
         redirect: meth [target [url! file!] /code [integer!]] [
@@ -291,12 +289,11 @@ sys.util.make-scheme [
             content: "Redirecting..."
             type: "text/plain"
             location: target
-            return none
         ]
     ]
 
     transcribe: function [
-        return: <none>
+        return: [~]
         client [port!]
 
       <static>
@@ -400,7 +397,7 @@ sys.util.make-scheme [
     ]
 
     dispatch: function [
-        return: <none>
+        return: [~]
         client [port!]
 
       <static>
