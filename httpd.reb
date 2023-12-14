@@ -106,10 +106,9 @@ sys.util.make-scheme [
         any [
             url? spec.ref
             block? spec.actions
-            try parse spec.ref [
+            ok? parse spec.ref [
                 set-word! lit-word?!
                 spec.port-id: integer!, spec.actions: block!
-                <end> accept (true)
             ]
             fail "Server lacking core features."
         ]
