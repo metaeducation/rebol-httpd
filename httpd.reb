@@ -443,7 +443,7 @@ sys.util.make-scheme [
                     keep spread [cr lf "Content-Encoding:" "gzip"]
                 ]
                 if response.location [
-                    keep spread [cr lf "Location:" response/location]
+                    keep spread [cr lf "Location:" response.location]
                 ]
                 if response.close? [
                     keep spread [cr lf "Connection:" "close"]
