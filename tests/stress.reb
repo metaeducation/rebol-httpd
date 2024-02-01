@@ -43,7 +43,7 @@ process-id: call* probe compose [
         "trap ["
             "str:" mold str "n:" n
             "wait srv: open [scheme: 'httpd 8000 ["
-                "set 'n n + 1"
+                "n: n + 1"
                 "expected: copy str"
                 "repeat n [append expected expected]"
                 "lib.print [{SERVER} n {:} (length of as binary! expected) {bytes}]"

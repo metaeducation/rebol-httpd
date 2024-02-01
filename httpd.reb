@@ -108,7 +108,7 @@ sys.util.make-scheme [
             block? spec.actions
             ok? parse spec.ref [
                 set-word! lit-word?!
-                spec.port-id: integer!, spec.actions: block!
+                spec.port-id: integer!, spec.actions: *in* block!
             ]
             fail "Server lacking core features."
         ]
@@ -125,13 +125,12 @@ sys.util.make-scheme [
             request [object!]
             response [object!]
         ] compose [
-            render: get in response 'render
-            redirect: get in response 'redirect
-            print: get in response 'print
-
-            (spread (
+            apply func [request response render redirect print] (
                 match block! server.spec.actions else [default-response]
-            ))
+            )[
+                request response
+                :response.render :response.redirect :response.print
+            ]
         ]
 
         server.locals.subport: make port! [scheme: 'tcp]
@@ -422,7 +421,7 @@ sys.util.make-scheme [
         ])
 
         build-header (func [response [object!]] [
-            return append make binary! 1024 spaced collect [
+            return append make binary! 1024 spaced inside [] collect [
                 if not find status-codes response.status [
                     response.status: 500
                 ]
