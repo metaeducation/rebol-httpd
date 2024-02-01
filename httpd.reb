@@ -80,7 +80,7 @@ trap-httpd: func [
     ]
 ]
 
-as-text: function [
+as-text: func [
     {Variant of AS TEXT! that scrubs out invalid UTF-8 sequences}
     return: [text!]
     binary [binary!]
@@ -99,8 +99,8 @@ sys.util.make-scheme [
 
     spec: make system.standard.port-spec-head [port-id: actions: _]
 
-    init: function [return: [~] server [port!]] [
-        spec: server.spec
+    init: func [return: [~] server [port!]] [
+        let spec: server.spec
         probe mold spec
 
         any [
@@ -120,7 +120,7 @@ sys.util.make-scheme [
             clients: make block! 1024
         ]
 
-        server.locals.handler: function [
+        server.locals.handler: func [
             return: [~]
             request [object!]
             response [object!]
@@ -145,7 +145,7 @@ sys.util.make-scheme [
             parent: :server
         ]
 
-        server.locals.subport.spec.accept: function [
+        server.locals.subport.spec.accept: func [
             return: [~]
             client [port!]
         ][
@@ -291,7 +291,7 @@ sys.util.make-scheme [
         ]
     ]
 
-    transcribe: function [
+    transcribe: func [
         return: [~]
         client [port!]
 
@@ -395,7 +395,7 @@ sys.util.make-scheme [
         ]
     ]
 
-    dispatch: function [
+    dispatch: func [
         return: [~]
         client [port!]
 
@@ -454,7 +454,7 @@ sys.util.make-scheme [
             ]
         ])
     ][
-        client.locals.response: response: make response-prototype []
+        let response: client.locals.response: make response-prototype []
 
         if object? client.locals.request [
             client.locals.parent.locals.handler client.locals.request response
