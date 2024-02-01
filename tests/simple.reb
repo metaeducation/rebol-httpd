@@ -1,3 +1,10 @@
+REBOL [
+    Title: "Simple Test of HTTPD Server"
+    Description: {
+        Transfer a small string with a high codepoint in it.
+    }
+]
+
 ; Assume we're being run from the httpd's directory
 ;
 import %httpd.reb
